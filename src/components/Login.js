@@ -2,9 +2,18 @@ import React, { Component } from "react";
 import history from "../history";
 
 export default class Login extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    console.log(props);
     this.state = { msg: "" };
+  }
+
+  componentWillMount() {
+    if (this.props.location.state !== undefined) {
+      this.setState({ msg: this.props.location.state.msg });
+    } else {
+      this.setState({ msg: "" });
+    }
   }
 
   envia(ev) {
