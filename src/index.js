@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Router, Route, Switch, Redirect } from "react-router-dom";
+import { Router, Route, Switch, Redirect, matchPath } from "react-router-dom";
 import history from "./history";
 
 import App from "./App";
@@ -14,25 +14,34 @@ import "./css/login.css";
 import * as serviceWorker from "./serviceWorker";
 
 function verificaAutenticacao(nextState, replace) {
-  if (localStorage.getItem("auth-token") === null) {
+  const match = matchPath("/timeline", {
+    path: nextState.match.url,
+    exact: true
+  });
+
+  let valida = false;
+  if (match !== null) {
+    valida = match.isExact;
+  }
+
+  if (valida && localStorage.getItem("auth-token") === null) {
     return (
       <Redirect
         to={{
           pathname: "/",
-          state: { msg: "usuário não autenticado" }
+          state: { msg: "Faça login para acessar esta página" }
         }}
       />
     );
-  } else {
-    return <App />;
   }
+  return <App />;
 }
 
 ReactDOM.render(
   <Router history={history}>
     <Switch>
       <Route exact path="/" component={Login} />
-      <Route path="/timeline" render={verificaAutenticacao} />
+      <Route exact path="/timeline/:login?" render={verificaAutenticacao} />
       <Route path="/logout" component={Logout} />
     </Switch>
   </Router>,
