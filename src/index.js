@@ -41,7 +41,7 @@ ReactDOM.render(
   <Router history={history}>
     <Switch>
       <Route exact path="/" component={Login} />
-      <Route exact path="/timeline/:login?" render={verificaAutenticacao} />
+      <Route path="/timeline/:login?" render={verificaAutenticacao} />
       <Route path="/logout" component={Logout} />
     </Switch>
   </Router>,
