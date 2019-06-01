@@ -28,9 +28,21 @@ class FotoInfo extends Component {
 
   componentWillMount() {
     Pubsub.subscribe("atualiza-liker", (topico, infoLiker) => {
-      const possivelLiker = this.state.likers.find(
-        liker => liker.login === infoLiker.liker.login
-      );
+      if (this.props.foto.id === infoLiker.fotoId) {
+        const possibleLiker = this.state.likers.find(
+          liker => liker.login === infoLiker.liker.login
+        );
+
+        if (possibleLiker === undefined) {
+          const newLikers = this.state.likers.concat(infoLiker.liker);
+          this.setState({ likers: newLikers });
+        } else {
+          const newLikers = this.state.likers.filter(
+            liker => liker.login !== infoLiker.liker.login
+          );
+          this.setState({ likers: newLikers });
+        }
+      }
     });
   }
 
@@ -81,6 +93,7 @@ class FotoAtualizacoes extends Component {
 
   like(ev) {
     ev.preventDefault();
+
     const requestDetails = {
       method: "POST"
     };
@@ -100,7 +113,10 @@ class FotoAtualizacoes extends Component {
       })
       .then(liker => {
         this.setState({ likeada: !this.state.likeada });
-        Pubsub.publish("atualiza-liker", { fotoId: this.props.foto.id, liker }); //property shorthand
+        Pubsub.publish("atualiza-liker", {
+          fotoId: this.props.foto.id,
+          liker: liker
+        }); //property shorthand
       });
   }
 
