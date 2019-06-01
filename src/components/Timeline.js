@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 
+import Pubsub from "pubsub-js";
+import { CSSTransitionGroup } from "react-transition-group";
+
 import FotoItem from "./Foto";
 
 class Timeline extends Component {
@@ -10,6 +13,12 @@ class Timeline extends Component {
       fotos: []
     };
     this.login = this.props.login;
+  }
+
+  componentWillMount() {
+    Pubsub.subscribe("timeline", (topico, fotos) => {
+      this.setState({ fotos });
+    });
   }
 
   carregaFotos(props) {
@@ -45,9 +54,15 @@ class Timeline extends Component {
   render() {
     return (
       <div className="fotos container">
-        {this.state.fotos.map(foto => (
-          <FotoItem key={foto.id} foto={foto} />
-        ))}
+        <CSSTransitionGroup
+          transitionName="timeline"
+          transitionEnterTimeout={500}
+          transitionLeaveTimeout={300}
+        >
+          {this.state.fotos.map(foto => (
+            <FotoItem key={foto.id} foto={foto} />
+          ))}
+        </CSSTransitionGroup>
       </div>
     );
   }
