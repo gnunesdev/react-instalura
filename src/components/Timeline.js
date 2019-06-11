@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 
-import Pubsub from "pubsub-js";
 import { CSSTransitionGroup } from "react-transition-group";
+
+import LogicaTimeline from "./../logicas/LogicaTimeline";
 
 import FotoItem from "./Foto";
 
@@ -13,41 +14,12 @@ class Timeline extends Component {
       fotos: []
     };
     this.login = this.props.login;
+    this.logicaTimeline = new LogicaTimeline([]);
   }
 
   componentWillMount() {
-    Pubsub.subscribe("timeline", (topico, fotos) => {
+    this.logicaTimeline.subscribe(fotos => {
       this.setState({ fotos });
-    });
-
-    Pubsub.subscribe("atualiza-liker", (topico, infoLiker) => {
-      const fotoAchada = this.state.fotos.find(
-        foto => foto.id === infoLiker.fotoId
-      );
-
-      fotoAchada.likeada = !fotoAchada.likeada;
-
-      const possibleLiker = fotoAchada.likers.find(
-        liker => liker.login === infoLiker.liker.login
-      );
-
-      if (possibleLiker === undefined) {
-        fotoAchada.likers.push(infoLiker.liker);
-      } else {
-        const newLikers = fotoAchada.likers.filter(
-          liker => liker.login !== infoLiker.liker.login
-        );
-        fotoAchada.likers = newLikers;
-      }
-      this.setState({ fotos: this.state.fotos });
-    });
-
-    Pubsub.subscribe("novos-comentarios", (topico, infoComentario) => {
-      const fotoAchada = this.state.fotos.find(
-        foto => foto.id === infoComentario.fotoId
-      );
-      fotoAchada.comentarios.push(infoComentario.novoComentario);
-      this.setState({ fotos: this.state.fotos });
     });
   }
 
@@ -63,11 +35,7 @@ class Timeline extends Component {
       }`;
     }
 
-    fetch(urlPerfil)
-      .then(response => response.json())
-      .then(fotos => {
-        this.setState({ fotos: fotos });
-      });
+    this.logicaTimeline.lista(urlPerfil);
   }
 
   componentDidMount() {
@@ -82,61 +50,11 @@ class Timeline extends Component {
   }
 
   like(fotoId) {
-    const requestDetails = {
-      method: "POST"
-    };
-
-    fetch(
-      `https://instalura-api.herokuapp.com/api/fotos/${fotoId}/like?X-AUTH-TOKEN=${localStorage.getItem(
-        "auth-token"
-      )}`,
-      requestDetails
-    )
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Não foi possível realizar o like da foto");
-        }
-      })
-      .then(liker => {
-        Pubsub.publish("atualiza-liker", {
-          fotoId: fotoId,
-          liker: liker
-        }); //property shorthand
-      });
+    this.logicaTimeline.like(fotoId);
   }
 
   comenta(fotoId, textComentary) {
-    const requestInfo = {
-      method: "POST",
-      body: JSON.stringify({
-        texto: textComentary
-      }),
-      headers: new Headers({
-        "Content-type": "application/json"
-      })
-    };
-
-    fetch(
-      `https://instalura-api.herokuapp.com/api/fotos/${fotoId}/comment?X-AUTH-TOKEN=${localStorage.getItem(
-        "auth-token"
-      )}`,
-      requestInfo
-    )
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Não foi possível comentar");
-        }
-      })
-      .then(novoComentario => {
-        Pubsub.publish("novos-comentarios", {
-          fotoId: fotoId,
-          novoComentario //shorthand
-        });
-      });
+    this.logicaTimeline.comenta(fotoId, textComentary);
   }
 
   render() {
@@ -151,8 +69,8 @@ class Timeline extends Component {
             <FotoItem
               key={foto.id}
               foto={foto}
-              like={this.like}
-              comenta={this.comenta}
+              like={this.like.bind(this)}
+              comenta={this.comenta.bind(this)}
             />
           ))}
         </CSSTransitionGroup>
