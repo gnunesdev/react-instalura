@@ -3,16 +3,16 @@ import React from "react";
 import Header from "./components/Header";
 import Timeline from "./components/Timeline";
 
-import LogicaTimeline from "./logicas/LogicaTimeline";
+import TimelineStore from "./logicas/TimelineStore";
 
-const logicaTimeline = new LogicaTimeline([]);
+const timelineStore = new TimelineStore([]);
 
 function App(props) {
   return (
     <div id="root">
       <div className="main">
         <Header />
-        <Timeline logicaTimeline={logicaTimeline} />
+        <Timeline store={timelineStore} />
       </div>
     </div>
   );

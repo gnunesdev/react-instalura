@@ -15,7 +15,7 @@ class Timeline extends Component {
   }
 
   componentWillMount() {
-    this.props.logicaTimeline.subscribe(fotos => {
+    this.props.store.subscribe(fotos => {
       this.setState({ fotos });
     });
   }
@@ -29,10 +29,10 @@ class Timeline extends Component {
     } else {
       urlPerfil = `https://instalura-api.herokuapp.com/api/public/fotos/${
         this.login
-      }`;
+        }`;
     }
 
-    this.props.logicaTimeline.lista(urlPerfil);
+    this.props.store.lista(urlPerfil);
   }
 
   componentDidMount() {
@@ -47,11 +47,11 @@ class Timeline extends Component {
   }
 
   like(fotoId) {
-    this.props.logicaTimeline.like(fotoId);
+    this.props.store.like(fotoId);
   }
 
   comenta(fotoId, textComentary) {
-    this.props.logicaTimeline.comenta(fotoId, textComentary);
+    this.props.store.comenta(fotoId, textComentary);
   }
 
   render() {
