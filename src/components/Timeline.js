@@ -3,6 +3,7 @@ import { withRouter } from "react-router-dom";
 
 import { CSSTransitionGroup } from "react-transition-group";
 
+import TimelineApi from './../logicas/TimelineApi';
 import FotoItem from "./Foto";
 
 class Timeline extends Component {
@@ -15,8 +16,8 @@ class Timeline extends Component {
   }
 
   componentWillMount() {
-    this.props.store.subscribe(fotos => {
-      this.setState({ fotos });
+    this.props.store.subscribe(() => {
+      this.setState({ fotos: this.props.store.getState() });
     });
   }
 
@@ -32,7 +33,7 @@ class Timeline extends Component {
         }`;
     }
 
-    this.props.store.lista(urlPerfil);
+    this.props.store.dispatch(TimelineApi.lista(urlPerfil));
   }
 
   componentDidMount() {
@@ -47,11 +48,11 @@ class Timeline extends Component {
   }
 
   like(fotoId) {
-    this.props.store.like(fotoId);
+    this.props.store.dispatch(TimelineApi.like(fotoId));
   }
 
   comenta(fotoId, textComentary) {
-    this.props.store.comenta(fotoId, textComentary);
+    this.props.store.dispatch(TimelineApi.comenta(fotoId, textComentary));
   }
 
   render() {
